@@ -72,7 +72,7 @@ export default function SalesByCityChart({
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+            margin={{ top: 5, right: 50, left: 40, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
             <XAxis type="number" tickFormatter={(value) => `₱${(value / 1000).toLocaleString('en-PH')}K`} />
@@ -80,7 +80,7 @@ export default function SalesByCityChart({
               dataKey="city" 
               type="category" 
               tick={{ fontSize: 12 }}
-              width={75}
+              width={50}
             />
             <Tooltip formatter={tooltipFormatter} />
             <Bar 
@@ -88,8 +88,15 @@ export default function SalesByCityChart({
               name="Amount Financed" 
               fill="url(#cityBarGradient)" 
               radius={[0, 4, 4, 0]}
-              label={{ position: 'right', formatter: (v: number) => `₱${v.toLocaleString('en-PH', { maximumFractionDigits: 0 })}`, fontSize: 12, fill: '#2563eb', fontWeight: 500 }}
-              maxBarSize={28}
+              label={{ 
+                position: 'right', 
+                formatter: (v: number) => `₱${(v/1000).toLocaleString('en-PH')}K`, 
+                fontSize: 11, 
+                fill: '#2563eb', 
+                fontWeight: 500,
+                offset: 5
+              }}
+              maxBarSize={24}
             />
             <defs>
               <linearGradient id="cityBarGradient" x1="0" y1="0" x2="1" y2="0">

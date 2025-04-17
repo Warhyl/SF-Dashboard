@@ -169,7 +169,7 @@ export default function Dashboard() {
             <div className="mb-6">
               <h2 className="text-xl font-medium mb-3">Sales Trends</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Financing Trend Over Time */}
+                {/* Financing Trend Over Time first */}
                 {dataLoaded.sales && (
                   <div className="chart-container">
                     <h3 className="chart-title">Financing Trend Over Time</h3>
@@ -182,7 +182,7 @@ export default function Dashboard() {
                   </div>
                 )}
                 
-                {/* Sales by City */}
+                {/* Sales by City second */}
                 {dataLoaded.sales && (
                   <div className="chart-container">
                     <h3 className="chart-title">Sales by City</h3>
@@ -248,12 +248,13 @@ export default function Dashboard() {
                 <span className="text-blue-500">•</span>
                 <span><strong>Daily_Sales_Dump.csv</strong>: Contains information about financed applications</span>
               </li>
-              <li className="flex items-center gap-2 mb-4">
+              <li className="flex items-center gap-2">
                 <span className="text-blue-500">•</span>
-                <span><strong>Daily_Sales_Funnel.csv</strong>: Contains sales funnel conversion data</span>
+                <span><strong>Daily_SalesFunnel.csv</strong>: Contains information about the sales funnel</span>
               </li>
             </ul>
             
+            {/* Sample Data Loader */}
             <div className="mt-8">
               <SampleDataLoader onLoadSampleData={handleLoadSampleData} />
             </div>
