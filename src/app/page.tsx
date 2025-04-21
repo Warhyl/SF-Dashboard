@@ -184,7 +184,7 @@ export default function Dashboard() {
                 
                 {/* Sales by City second */}
                 {dataLoaded.sales && (
-                  <div className="chart-container">
+                  <div className="chart-container h-auto">
                     <h3 className="chart-title">Sales by City</h3>
                     <SalesByCityChart 
                       salesData={salesData}

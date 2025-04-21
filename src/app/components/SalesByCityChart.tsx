@@ -39,7 +39,8 @@ export default function SalesByCityChart({
 
     // Group data by city
     const groupedByCity = filteredData.reduce((acc, item) => {
-      const city = item.City || 'Unknown';
+      // Ensure consistent city capitalization
+      const city = item.City ? item.City.trim() : 'Unknown';
       if (!acc[city]) {
         acc[city] = {
           city,
@@ -64,23 +65,24 @@ export default function SalesByCityChart({
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 h-80">
+    <div className="bg-white rounded-lg shadow p-4 h-[500px]">
       <h3 className="text-lg font-semibold mb-1">Sales by City</h3>
       <div className="text-xs text-gray-500 mb-3">Showing Top 10 Cities by Amount Financed</div>
       {chartData.length > 0 ? (
-        <ResponsiveContainer width="100%" height="85%">
+        <ResponsiveContainer width="100%" height="90%">
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 5, right: 50, left: 40, bottom: 5 }}
+            margin={{ top: 5, right: 50, left: 45, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
             <XAxis type="number" tickFormatter={(value) => `₱${(value / 1000).toLocaleString('en-PH')}K`} />
             <YAxis 
               dataKey="city" 
               type="category" 
-              tick={{ fontSize: 12 }}
-              width={50}
+              tick={{ fontSize: 11 }}
+              width={60}
+              interval={0}
             />
             <Tooltip formatter={tooltipFormatter} />
             <Bar 
@@ -91,12 +93,12 @@ export default function SalesByCityChart({
               label={{ 
                 position: 'right', 
                 formatter: (v: number) => `₱${(v/1000).toLocaleString('en-PH')}K`, 
-                fontSize: 11, 
+                fontSize: 10, 
                 fill: '#2563eb', 
                 fontWeight: 500,
                 offset: 5
               }}
-              maxBarSize={24}
+              maxBarSize={20}
             />
             <defs>
               <linearGradient id="cityBarGradient" x1="0" y1="0" x2="1" y2="0">
