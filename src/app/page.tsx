@@ -171,7 +171,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Financing Trend Over Time first */}
                 {dataLoaded.sales && (
-                  <div className="chart-container">
+                  <div className="chart-container h-auto">
                     <h3 className="chart-title">Financing Trend Over Time</h3>
                     <FinancingTrendChart 
                       salesData={salesData}

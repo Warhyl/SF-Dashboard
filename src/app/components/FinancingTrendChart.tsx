@@ -74,39 +74,43 @@ export default function FinancingTrendChart({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 h-80">
-      <h3 className="text-lg font-semibold mb-4">Financing Trend Over Time</h3>
+    <div className="bg-white rounded-lg shadow p-4 h-[400px]">
+      <h3 className="text-lg font-semibold mb-2">Financing Trend Over Time</h3>
       {chartData.length > 0 ? (
-        <ResponsiveContainer width="100%" height="85%">
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={formatXAxis}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis 
-              tickFormatter={(value) => value.toLocaleString()}
-            />
-            <Tooltip 
-              formatter={tooltipFormatter}
-              labelFormatter={dateFormatter}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="count" 
-              name="Loan Applications" 
-              stroke="#2563eb" 
-              strokeWidth={2} 
-              activeDot={{ r: 8 }} 
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="h-[340px] flex items-center justify-center">
+          <ResponsiveContainer width="100%" height="95%">
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={formatXAxis}
+                angle={-45}
+                textAnchor="end"
+                height={50}
+                dy={10}
+              />
+              <YAxis 
+                tickFormatter={(value) => value.toLocaleString()}
+                dx={-5}
+              />
+              <Tooltip 
+                formatter={tooltipFormatter}
+                labelFormatter={dateFormatter}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="count" 
+                name="Loan Applications" 
+                stroke="#2563eb" 
+                strokeWidth={2} 
+                activeDot={{ r: 8 }} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       ) : (
         <div className="h-full flex items-center justify-center text-gray-500">
           No data available for the selected filters
