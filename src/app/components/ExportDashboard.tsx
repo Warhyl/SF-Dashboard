@@ -28,7 +28,7 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
         backgroundColor: '#f9fafb', // Match the dashboard background
         onclone: (clonedDoc: Document) => {
           // Add custom styles to the cloned document to ensure tooltips are visible
-          // and filter text shows correctly
+          // and filter text shows correctly, and fix blank space
           const style = clonedDoc.createElement('style');
           style.innerHTML = `
             .recharts-tooltip-wrapper {
@@ -58,6 +58,28 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
               overflow: visible !important;
               white-space: normal !important;
             }
+            /* Fix chart container heights to avoid blank space */
+            .chart-container {
+              height: auto !important;
+              min-height: 400px !important;
+              margin-bottom: 20px !important;
+            }
+            /* Improve chart spacing */
+            .recharts-wrapper {
+              margin: 0 auto !important;
+            }
+            /* Remove any unnecessary padding that might cause blank space */
+            .mb-6 {
+              margin-bottom: 1rem !important;
+            }
+            /* Ensure grid items are properly sized */
+            .grid {
+              gap: 1rem !important;
+            }
+            /* Make charts more compact */
+            .recharts-surface {
+              overflow: visible !important;
+            }
           `;
           clonedDoc.head.appendChild(style);
           
@@ -84,6 +106,25 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
               span.style.whiteSpace = 'normal';
             }
           });
+          
+          // Adjust the container to minimize blank space
+          const container = dashboardRef.current;
+          if (container) {
+            // Find all chart containers
+            const chartContainers = clonedDoc.querySelectorAll('.chart-container');
+            chartContainers.forEach(container => {
+              // Find any empty spaces or unnecessarily large margins
+              const emptyDivs = container.querySelectorAll('div:empty');
+              emptyDivs.forEach(div => {
+                if (div.clientHeight > 50) {
+                  // Use proper type assertion for HTMLElement
+                  const htmlDiv = div as HTMLElement;
+                  htmlDiv.style.height = 'auto';
+                  htmlDiv.style.maxHeight = '50px';
+                }
+              });
+            });
+          }
           
           // Find and trigger hover states on certain chart elements
           const chartPoints = clonedDoc.querySelectorAll('.recharts-dot, .recharts-bar-rectangle');
