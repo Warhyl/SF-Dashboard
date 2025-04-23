@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FileUpload from './components/FileUpload';
 import Logo from './components/Logo';
 import Filters, { FilterState } from './components/Filters';
@@ -10,8 +10,10 @@ import SalesByCityChart from './components/SalesByCityChart';
 import TopFinancedModelsChart from './components/TopFinancedModelsChart';
 import SalesFunnelChart from './components/SalesFunnelChart';
 import SampleDataLoader from './components/SampleDataLoader';
+import ExportDashboard from './components/ExportDashboard';
 
 export default function Dashboard() {
+  const dashboardRef = useRef<HTMLDivElement>(null);
   const [salesData, setSalesData] = useState<any[]>([]);
   const [funnelData, setFunnelData] = useState<any[]>([]);
   const [filters, setFilters] = useState<FilterState>({
@@ -104,15 +106,22 @@ export default function Dashboard() {
     <main className="min-h-screen bg-gray-50 p-5">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <header className="mb-6 flex items-center gap-4">
-  <Logo size={56} />
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900">Samsung Finance+ Dashboard</h1>
-    <p className="text-gray-600 text-sm">
-      Real-time overview of financing sales performance with visualizations
-    </p>
-  </div>
-</header>
+        <header className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Logo size={56} />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Samsung Finance+ Dashboard</h1>
+              <p className="text-gray-600 text-sm">
+                Real-time overview of financing sales performance with visualizations
+              </p>
+            </div>
+          </div>
+          {(dataLoaded.sales || dataLoaded.funnel) && (
+            <div className="flex justify-end">
+              <ExportDashboard dashboardRef={dashboardRef} />
+            </div>
+          )}
+        </header>
         
         {/* File Upload Section */}
         <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
@@ -137,7 +146,7 @@ export default function Dashboard() {
         
         {/* Show dashboard only when data is loaded */}
         {(dataLoaded.sales || dataLoaded.funnel) ? (
-          <>
+          <div ref={dashboardRef}>
             <div className="mb-6">
               <h2 className="text-xl font-medium mb-3">Overview KPIs</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
@@ -238,7 +247,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="bg-white p-10 rounded-lg shadow text-center">
             <h2 className="text-xl font-semibold mb-4">Welcome to the Sales Financing Dashboard</h2>
