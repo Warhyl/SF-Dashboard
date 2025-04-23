@@ -28,6 +28,7 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
         backgroundColor: '#f9fafb', // Match the dashboard background
         onclone: (clonedDoc: Document) => {
           // Add custom styles to the cloned document to ensure tooltips are visible
+          // and filter text shows correctly
           const style = clonedDoc.createElement('style');
           style.innerHTML = `
             .recharts-tooltip-wrapper {
@@ -41,8 +42,48 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
             .recharts-dot {
               fill: #3b82f6 !important;
             }
+            /* Fix text truncation in dropdown and select elements */
+            button span.truncate, 
+            select option, 
+            select {
+              text-overflow: clip !important;
+              overflow: visible !important;
+              white-space: normal !important;
+              word-wrap: break-word !important;
+            }
+            /* Ensure filter buttons display their full content */
+            .filter-section button,
+            .filter-section select {
+              text-overflow: unset !important;
+              overflow: visible !important;
+              white-space: normal !important;
+            }
           `;
           clonedDoc.head.appendChild(style);
+          
+          // Fix select elements to show their selected value fully
+          const selectElements = clonedDoc.querySelectorAll('select');
+          selectElements.forEach(select => {
+            // Get the selected option text
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption) {
+              // Create a visible display of the selected value
+              const displayValue = clonedDoc.createElement('div');
+              displayValue.textContent = selectedOption.textContent || '';
+              displayValue.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; background: white; z-index: 1;';
+              select.parentNode?.appendChild(displayValue);
+            }
+          });
+          
+          // Fix the dropdown buttons to show their full text
+          const dropdownButtons = clonedDoc.querySelectorAll('.filter-section button');
+          dropdownButtons.forEach(button => {
+            const span = button.querySelector('span');
+            if (span) {
+              span.classList.remove('truncate');
+              span.style.whiteSpace = 'normal';
+            }
+          });
           
           // Find and trigger hover states on certain chart elements
           const chartPoints = clonedDoc.querySelectorAll('.recharts-dot, .recharts-bar-rectangle');
