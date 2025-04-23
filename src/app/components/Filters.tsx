@@ -97,7 +97,7 @@ export default function Filters({ salesData, funnelData, onFilterChange }: Filte
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Date Range Filter */}
         <div>
           <label className="block text-sm font-medium mb-1">Date Range</label>
@@ -134,9 +134,10 @@ export default function Filters({ salesData, funnelData, onFilterChange }: Filte
         <div>
           <label className="block text-sm font-medium mb-1">Financer</label>
           <select
-            className="border rounded p-2 text-sm w-full"
+            className="border rounded p-2 text-sm w-full overflow-visible"
             value={filters.financer || ''}
             onChange={(e) => handleFilterChange('financer', e.target.value)}
+            style={{ textOverflow: 'unset', whiteSpace: 'normal' }}
           >
             <option value="">All Financers</option>
             {options.financers.map((financer) => (

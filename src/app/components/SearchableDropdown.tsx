@@ -57,10 +57,11 @@ export default function SearchableDropdown({
         type="button"
         className="flex justify-between items-center w-full px-4 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         onClick={() => setIsOpen(!isOpen)}
+        style={{ minHeight: '38px', wordBreak: 'break-word' }}
       >
-        <span className="truncate">{displayValue}</span>
+        <span className="text-left overflow-visible whitespace-normal">{displayValue}</span>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+          className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"

@@ -18,176 +18,263 @@ const ExportDashboard: React.FC<ExportDashboardProps> = ({ dashboardRef }) => {
     try {
       setExporting(true);
       
-      // Configure html2canvas options
-      const options = {
-        allowTaint: true,
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-        scale: 2, // Higher scale for better quality
-        backgroundColor: '#f9fafb', // Match the dashboard background
-        onclone: (clonedDoc: Document) => {
-          // Add custom styles to the cloned document to ensure tooltips are visible
-          // and filter text shows correctly, and fix blank space
-          const style = clonedDoc.createElement('style');
-          style.innerHTML = `
-            .recharts-tooltip-wrapper {
-              opacity: 1 !important;
-              visibility: visible !important;
-              transform: translate(0, 0) !important;
-            }
-            .recharts-active-dot {
-              r: 6 !important;
-            }
-            .recharts-dot {
-              fill: #3b82f6 !important;
-            }
-            /* Fix text truncation in dropdown and select elements */
-            button span.truncate, 
-            select option, 
-            select {
-              text-overflow: clip !important;
-              overflow: visible !important;
-              white-space: normal !important;
-              word-wrap: break-word !important;
-            }
-            /* Ensure filter buttons display their full content */
-            .filter-section button,
-            .filter-section select {
-              text-overflow: unset !important;
-              overflow: visible !important;
-              white-space: normal !important;
-            }
-            /* Fix chart container heights to avoid blank space */
-            .chart-container {
-              height: auto !important;
-              min-height: 400px !important;
-              margin-bottom: 20px !important;
-            }
-            /* Improve chart spacing */
-            .recharts-wrapper {
-              margin: 0 auto !important;
-            }
-            /* Remove any unnecessary padding that might cause blank space */
-            .mb-6 {
-              margin-bottom: 1rem !important;
-            }
-            /* Ensure grid items are properly sized */
-            .grid {
-              gap: 1rem !important;
-            }
-            /* Make charts more compact */
-            .recharts-surface {
-              overflow: visible !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
+      // Approach: Make a temporary clone and adjust it for export
+      const originalElement = dashboardRef.current;
+      
+      // Create a temporary clone of the dashboard for export outside the DOM
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '0';
+      
+      // Copy the dashboard content
+      tempContainer.innerHTML = originalElement.innerHTML;
+      document.body.appendChild(tempContainer);
+      
+      // Apply styling fixes to the temporary container
+      // Fix chart heights
+      const chartContainers = tempContainer.querySelectorAll('.chart-container');
+      chartContainers.forEach((container: Element) => {
+        const containerElement = container as HTMLElement;
+        containerElement.style.height = 'auto';
+        containerElement.style.minHeight = '400px';
+        containerElement.style.maxHeight = '450px';
+        containerElement.style.overflow = 'hidden';
+        containerElement.style.marginBottom = '16px';
+        
+        // Remove extra padding
+        const paddingElements = containerElement.querySelectorAll('.p-4, .p-6, .p-10');
+        paddingElements.forEach((element: Element) => {
+          const paddingElement = element as HTMLElement;
+          paddingElement.style.padding = '8px';
+        });
+      });
+      
+      // Decrease margin-bottom on section divs
+      const sections = tempContainer.querySelectorAll('.mb-6');
+      sections.forEach((section: Element) => {
+        const sectionElement = section as HTMLElement;
+        sectionElement.style.marginBottom = '16px';
+      });
+      
+      // Adjust grid gaps
+      const grids = tempContainer.querySelectorAll('.grid');
+      grids.forEach((grid: Element) => {
+        const gridElement = grid as HTMLElement;
+        gridElement.style.gap = '8px';
+      });
+      
+      // Fix truncated text in filter/select elements
+      const truncateElements = tempContainer.querySelectorAll('.truncate');
+      truncateElements.forEach((element: Element) => {
+        const truncateElement = element as HTMLElement;
+        truncateElement.classList.remove('truncate');
+        truncateElement.style.whiteSpace = 'normal';
+        truncateElement.style.overflow = 'visible';
+      });
+      
+      // Fix dropdown buttons for export
+      const dropdownButtons = tempContainer.querySelectorAll('button');
+      dropdownButtons.forEach((button: Element) => {
+        const buttonElement = button as HTMLElement;
+        
+        // For dropdown buttons that contain an SVG (caret icon)
+        const svgElement = buttonElement.querySelector('svg');
+        if (svgElement) {
+          // Remove the SVG/caret icon completely
+          svgElement.remove();
           
-          // Fix select elements to show their selected value fully
-          const selectElements = clonedDoc.querySelectorAll('select');
-          selectElements.forEach(select => {
-            // Get the selected option text
-            const selectedOption = select.options[select.selectedIndex];
-            if (selectedOption) {
-              // Create a visible display of the selected value
-              const displayValue = clonedDoc.createElement('div');
-              displayValue.textContent = selectedOption.textContent || '';
-              displayValue.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; background: white; z-index: 1;';
-              select.parentNode?.appendChild(displayValue);
-            }
-          });
-          
-          // Fix the dropdown buttons to show their full text
-          const dropdownButtons = clonedDoc.querySelectorAll('.filter-section button');
-          dropdownButtons.forEach(button => {
-            const span = button.querySelector('span');
-            if (span) {
-              span.classList.remove('truncate');
-              span.style.whiteSpace = 'normal';
-            }
-          });
-          
-          // Adjust the container to minimize blank space
-          const container = dashboardRef.current;
-          if (container) {
-            // Find all chart containers
-            const chartContainers = clonedDoc.querySelectorAll('.chart-container');
-            chartContainers.forEach(container => {
-              // Find any empty spaces or unnecessarily large margins
-              const emptyDivs = container.querySelectorAll('div:empty');
-              emptyDivs.forEach(div => {
-                if (div.clientHeight > 50) {
-                  // Use proper type assertion for HTMLElement
-                  const htmlDiv = div as HTMLElement;
-                  htmlDiv.style.height = 'auto';
-                  htmlDiv.style.maxHeight = '50px';
-                }
-              });
-            });
+          // Ensure the text is displayed correctly
+          const textSpan = buttonElement.querySelector('span');
+          if (textSpan) {
+            textSpan.style.width = '100%';
+            textSpan.style.textAlign = 'left';
+            textSpan.style.display = 'block';
+            textSpan.style.whiteSpace = 'normal';
+            textSpan.style.overflow = 'visible';
+            textSpan.style.wordBreak = 'break-word';
           }
           
-          // Find and trigger hover states on certain chart elements
-          const chartPoints = clonedDoc.querySelectorAll('.recharts-dot, .recharts-bar-rectangle');
-          if (chartPoints.length > 0) {
-            // Simulate hover on the middle chart point for each chart
-            const chartGroups = new Set<Element>();
-            chartPoints.forEach(point => {
-              const parent = point.closest('.recharts-wrapper');
-              if (parent) chartGroups.add(parent);
-            });
-            
-            // For each chart, find a representative point to show tooltip
-            chartGroups.forEach(chartGroup => {
-              const points = Array.from(chartGroup.querySelectorAll('.recharts-dot, .recharts-bar-rectangle'));
-              if (points.length > 0) {
-                const middlePoint = points[Math.floor(points.length / 2)];
-                // Add a visible tooltip
-                const tooltip = clonedDoc.createElement('div');
-                tooltip.className = 'recharts-tooltip-wrapper recharts-tooltip-wrapper-right recharts-tooltip-wrapper-bottom';
-                tooltip.style.cssText = 'position: absolute; top: 0; left: 0; transform: translate(50%, 50%); pointer-events: none; z-index: 1000;';
-                tooltip.innerHTML = '<div class="recharts-tooltip-content" style="background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">Sample Data<br/>Value: 123</div>';
-                chartGroup.appendChild(tooltip);
-              }
-            });
-          }
+          // Style the button itself
+          buttonElement.style.height = 'auto';
+          buttonElement.style.minHeight = '38px';
+          buttonElement.style.padding = '8px 12px';
+          buttonElement.style.display = 'block';
+          buttonElement.style.textAlign = 'left';
         }
-      };
-
-      // Capture the dashboard as canvas
-      const canvas = await html2canvas(dashboardRef.current, options);
+      });
       
-      // Create file name with date
-      const date = new Date();
-      const fileName = `samsung-finance-dashboard-${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+      // Also fix select elements
+      const selectElements = tempContainer.querySelectorAll('select');
+      selectElements.forEach((select: Element) => {
+        // Create a div to replace the select
+        const selectValue = (select as HTMLSelectElement).options[(select as HTMLSelectElement).selectedIndex]?.text || "";
+        const div = document.createElement('div');
+        div.textContent = selectValue;
+        div.style.border = '1px solid #e5e7eb';
+        div.style.borderRadius = '6px';
+        div.style.padding = '8px 12px';
+        div.style.fontSize = '14px';
+        div.style.width = '100%';
+        div.style.minHeight = '38px';
+        div.style.backgroundColor = 'white';
+        
+        // Replace the select with the div
+        select.parentNode?.replaceChild(div, select);
+      });
       
-      if (exportFormat === 'pdf') {
-        // Create PDF
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        const pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
+      // Add fixed tooltips for charts
+      const addTooltipsToCharts = () => {
+        // We'll replace this with axis fixes without adding tooltips
+        
+        // Fix chart axis and labels
+        const chartWrappers = tempContainer.querySelectorAll('.recharts-wrapper');
+        chartWrappers.forEach((wrapper: Element) => {
+          // Fix y-axis
+          const yAxisLabels = wrapper.querySelectorAll('.recharts-cartesian-axis-tick-value');
+          yAxisLabels.forEach((label: Element) => {
+            const labelElement = label as HTMLElement;
+            // Ensure Y-axis labels are properly sized and positioned
+            labelElement.style.fontSize = '10px';
+            labelElement.style.fontWeight = 'normal';
+          });
+          
+          // Fix chart background for better visibility
+          const cartesianGrid = wrapper.querySelector('.recharts-cartesian-grid');
+          if (cartesianGrid) {
+            (cartesianGrid as HTMLElement).style.opacity = '0.3';
+          }
+          
+          // Fix legend if present
+          const legend = wrapper.querySelector('.recharts-legend-wrapper');
+          if (legend) {
+            (legend as HTMLElement).style.fontSize = '12px';
+            (legend as HTMLElement).style.padding = '8px 0';
+          }
         });
         
-        // Calculate aspect ratio to fit PDF
-        const imgWidth = 280; // mm (A4 landscape width with margins)
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Hide any existing tooltips
+        const tooltips = tempContainer.querySelectorAll('.recharts-tooltip-wrapper');
+        tooltips.forEach((tooltip: Element) => {
+          (tooltip as HTMLElement).style.display = 'none';
+        });
+      };
+      
+      // Wait for charts to render before adding tooltips
+      setTimeout(() => {
+        addTooltipsToCharts();
         
-        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
-        pdf.save(`${fileName}.pdf`);
-      } else {
-        // Export as PNG or JPEG
-        const link = document.createElement('a');
-        link.download = `${fileName}.${exportFormat}`;
-        link.href = canvas.toDataURL(`image/${exportFormat}`, exportFormat === 'jpeg' ? 0.85 : 1.0);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+        // Capture the temporary container as canvas
+        html2canvas(tempContainer, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 2,
+          backgroundColor: '#f9fafb',
+          height: tempContainer.scrollHeight,
+          windowHeight: tempContainer.scrollHeight,
+          onclone: (clonedDoc) => {
+            // Additional last-minute fixes for the cloned document
+            const style = clonedDoc.createElement('style');
+            style.innerHTML = `
+              .recharts-wrapper { margin: 0 auto !important; }
+              .recharts-surface { overflow: visible !important; }
+              .recharts-tooltip-wrapper { 
+                display: none !important;
+                opacity: 0 !important; 
+                visibility: hidden !important;
+              }
+            `;
+            clonedDoc.head.appendChild(style);
+          }
+        }).then(canvas => {
+          // Remove the temporary container
+          document.body.removeChild(tempContainer);
+          
+          // Create file name with date
+          const date = new Date();
+          const fileName = `samsung-finance-dashboard-${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+          
+          if (exportFormat === 'pdf') {
+            // Create PDF
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const pdf = new jsPDF({
+              orientation: 'landscape',
+              unit: 'mm',
+              format: 'a3', // Use larger A3 format for more content
+            });
+            
+            // Calculate aspect ratio to fit PDF
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            // Calculate the scaling factor to fit the entire dashboard
+            const canvasAspectRatio = canvas.width / canvas.height;
+            const pdfAspectRatio = pdfWidth / pdfHeight;
+            
+            let imgWidth, imgHeight;
+            
+            if (canvasAspectRatio > pdfAspectRatio) {
+              // If canvas is wider than PDF page
+              imgWidth = pdfWidth - 20; // 10mm margins on each side
+              imgHeight = imgWidth / canvasAspectRatio;
+            } else {
+              // If canvas is taller than PDF page
+              imgHeight = pdfHeight - 20; // 10mm margins on top and bottom
+              imgWidth = imgHeight * canvasAspectRatio;
+            }
+            
+            // Center the image on the page
+            const x = (pdfWidth - imgWidth) / 2;
+            const y = (pdfHeight - imgHeight) / 2;
+            
+            // Add the image to the PDF
+            pdf.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight);
+            
+            // If the dashboard is too big to fit on one page, we can split it across multiple pages
+            if (canvas.height > 2000) {
+              // Create a multi-page PDF for very large dashboards
+              const totalPages = Math.ceil(canvas.height / 1000);
+              const pageHeight = canvas.height / totalPages;
+              
+              pdf.deletePage(1); // Remove the first attempt
+              
+              for (let i = 0; i < totalPages; i++) {
+                pdf.addPage('a3', 'landscape');
+                pdf.addImage(
+                  imgData, 
+                  'JPEG', 
+                  10, // X position (10mm margin)
+                  10 - (i * pageHeight * pdfWidth / canvas.width), // Y position adjusted for each page
+                  pdfWidth - 20, // Width (minus 20mm total margin)
+                  canvas.height * (pdfWidth - 20) / canvas.width // Height proportional to width
+                );
+              }
+            }
+            
+            pdf.save(`${fileName}.pdf`);
+          } else {
+            // Export as PNG or JPEG
+            const link = document.createElement('a');
+            link.download = `${fileName}.${exportFormat}`;
+            link.href = canvas.toDataURL(`image/${exportFormat}`, exportFormat === 'jpeg' ? 0.85 : 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+          
+          setExporting(false);
+        }).catch(error => {
+          console.error('Error capturing canvas:', error);
+          document.body.removeChild(tempContainer);
+          setExporting(false);
+          alert('Failed to export dashboard. Please try again.');
+        });
+      }, 100); // Short delay to ensure DOM is updated
+      
     } catch (error) {
       console.error('Error exporting dashboard:', error);
-      alert('Failed to export dashboard. Please try again.');
-    } finally {
       setExporting(false);
+      alert('Failed to export dashboard. Please try again.');
     }
   };
 
