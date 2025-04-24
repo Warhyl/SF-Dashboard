@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import BlackPearlLogo from "./components/BlackPearlLogo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
       <head />
       <body className={`${inter.variable} bg-gray-50 antialiased`}>
         {children}
+        <BlackPearlLogo />
       </body>
     </html>
   );
