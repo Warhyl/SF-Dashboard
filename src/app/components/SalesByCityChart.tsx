@@ -22,10 +22,13 @@ export default function SalesByCityChart({
     // Filter the data
     let filteredData = [...salesData];
     
-    if (dateRangeFilter) {
+    if (dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end) {
       filteredData = filteredData.filter(item => {
-        const itemDate = item.Financed_Date;
-        return itemDate >= dateRangeFilter.start && itemDate <= dateRangeFilter.end;
+        const itemDate = String(item.Financed_Date);
+        const startDate = String(dateRangeFilter.start);
+        const endDate = String(dateRangeFilter.end);
+        
+        return itemDate >= startDate && itemDate <= endDate;
       });
     }
     

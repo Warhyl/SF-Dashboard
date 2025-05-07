@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { parse } from 'csv-parser';
 
 interface FileUploadProps {
   onDataLoaded: (data: any[], fileName: string) => void;
@@ -34,12 +33,19 @@ export default function FileUpload({ onDataLoaded, accept = '.csv', label }: Fil
         const obj: any = {};
         
         for (let j = 0; j < headers.length; j++) {
+          let header = headers[j].trim();
           let value = values[j]?.trim() || '';
+          
+          // Special handling for date fields
+          if (header === 'Financed_Date' && value) {
+            // Store date as string in YYYY-MM-DD format for consistent comparison
+            obj[header] = value;
+          }
           // Try to convert numeric values
-          if (!isNaN(Number(value)) && value !== '') {
-            obj[headers[j].trim()] = Number(value);
+          else if (!isNaN(Number(value)) && value !== '') {
+            obj[header] = Number(value);
           } else {
-            obj[headers[j].trim()] = value;
+            obj[header] = value;
           }
         }
         

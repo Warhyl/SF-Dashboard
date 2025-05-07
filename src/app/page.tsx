@@ -58,8 +58,12 @@ export default function Dashboard() {
     
     if (filters.dateRange && filters.dateRange.start && filters.dateRange.end) {
       filtered = filtered.filter(item => {
-        return item.Financed_Date >= filters.dateRange!.start && 
-               item.Financed_Date <= filters.dateRange!.end;
+        // Ensure we're comparing strings in the same format
+        const itemDate = String(item.Financed_Date);
+        const startDate = String(filters.dateRange!.start);
+        const endDate = String(filters.dateRange!.end);
+        
+        return itemDate >= startDate && itemDate <= endDate;
       });
     }
     
@@ -72,12 +76,12 @@ export default function Dashboard() {
     }
     
     if (filters.store) {
-      const storeField = filtered[0]?.Channel_Name ? 'Channel_Name' : 'Store_Name';
+      const storeField = filtered.length > 0 && filtered[0]?.Channel_Name ? 'Channel_Name' : 'Store_Name';
       filtered = filtered.filter(item => item[storeField] === filters.store);
     }
     
     if (filters.storeCode) {
-      filtered = filtered.filter(item => item.Channel_Code === filters.storeCode);
+      filtered = filtered.filter(item => String(item.Channel_Code) === String(filters.storeCode));
     }
     
     if (filters.model) {

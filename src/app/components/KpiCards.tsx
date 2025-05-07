@@ -27,16 +27,16 @@ export default function KpiCards({ salesData, funnelData }: KpiCardsProps) {
     
     const dates = salesData
       .filter(item => item.Financed_Date)
-      .map(item => item.Financed_Date);
+      .map(item => String(item.Financed_Date));
     
     if (dates.length === 0) return { date: '', totalSales: 0 };
     
-    // Sort dates in descending order and get the first one
-    const latestDate = dates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+    // Sort dates in descending order as strings (YYYY-MM-DD format sorts correctly)
+    const latestDate = dates.sort((a, b) => b.localeCompare(a))[0];
     
     // Calculate total sales for the latest date
     const latestDaySales = salesData
-      .filter(item => item.Financed_Date === latestDate)
+      .filter(item => String(item.Financed_Date) === latestDate)
       .reduce((sum, item) => sum + (Number(item.Principal_Amount) || 0), 0);
     
     return { date: latestDate, totalSales: latestDaySales };

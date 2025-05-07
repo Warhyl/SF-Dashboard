@@ -23,10 +23,13 @@ export default function FinancingTrendChart({
     // Filter the data
     let filteredData = [...salesData];
     
-    if (dateRangeFilter) {
+    if (dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end) {
       filteredData = filteredData.filter(item => {
-        const itemDate = item.Financed_Date;
-        return itemDate >= dateRangeFilter.start && itemDate <= dateRangeFilter.end;
+        const itemDate = String(item.Financed_Date);
+        const startDate = String(dateRangeFilter.start);
+        const endDate = String(dateRangeFilter.end);
+        
+        return itemDate >= startDate && itemDate <= endDate;
       });
     }
     
@@ -40,7 +43,7 @@ export default function FinancingTrendChart({
 
     // Group data by date
     const groupedByDate = filteredData.reduce((acc, item) => {
-      const date = item.Financed_Date;
+      const date = String(item.Financed_Date);
       if (!acc[date]) {
         acc[date] = { date, count: 0 };
       }
@@ -50,7 +53,7 @@ export default function FinancingTrendChart({
 
     // Convert to array and sort by date
     const sortedData = Object.values(groupedByDate)
-      .sort((a: any, b: any) => a.date.localeCompare(b.date));
+      .sort((a: any, b: any) => String(a.date).localeCompare(String(b.date)));
 
     setChartData(sortedData);
   }, [salesData, dateRangeFilter, financerFilter, cityFilter]);
