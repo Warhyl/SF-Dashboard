@@ -4,11 +4,24 @@ interface KpiCardsProps {
 }
 
 export default function KpiCards({ salesData, funnelData }: KpiCardsProps) {
+  // Debug output
+  console.log("KpiCards received sales data length:", salesData.length);
+  if (salesData.length > 0) {
+    console.log("Sample record:", salesData[0]);
+  }
+  
   // Calculate KPI metrics
   const totalFinancedApplications = salesData.length;
   
   const totalAmountFinanced = salesData.reduce(
-    (sum, item) => sum + (Number(item.Principal_Amount) || 0), 
+    (sum, item) => {
+      const amount = Number(item.Principal_Amount) || 0;
+      if (isNaN(amount)) {
+        console.warn("Found NaN Principal_Amount:", item);
+        return sum;
+      }
+      return sum + amount;
+    }, 
     0
   );
   
@@ -31,6 +44,10 @@ export default function KpiCards({ salesData, funnelData }: KpiCardsProps) {
     
     if (dates.length === 0) return { date: '', totalSales: 0 };
     
+    // Log unique dates for debugging
+    const uniqueDates = [...new Set(dates)];
+    console.log(`Found ${uniqueDates.length} unique dates in data`);
+    
     // Sort dates in descending order as strings (YYYY-MM-DD format sorts correctly)
     const latestDate = dates.sort((a, b) => b.localeCompare(a))[0];
     
@@ -38,6 +55,8 @@ export default function KpiCards({ salesData, funnelData }: KpiCardsProps) {
     const latestDaySales = salesData
       .filter(item => String(item.Financed_Date) === latestDate)
       .reduce((sum, item) => sum + (Number(item.Principal_Amount) || 0), 0);
+    
+    console.log(`Latest date: ${latestDate}, sales: ${latestDaySales}`);
     
     return { date: latestDate, totalSales: latestDaySales };
   };

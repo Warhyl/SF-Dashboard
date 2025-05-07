@@ -20,10 +20,13 @@ export default function FinancingTrendChart({
   useEffect(() => {
     if (!salesData.length) return;
 
+    console.log("FinancingTrendChart received sales data:", salesData.length);
+    
     // Filter the data
     let filteredData = [...salesData];
     
     if (dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end) {
+      console.log("Applying date filter:", dateRangeFilter);
       filteredData = filteredData.filter(item => {
         const itemDate = String(item.Financed_Date);
         const startDate = String(dateRangeFilter.start);
@@ -31,14 +34,17 @@ export default function FinancingTrendChart({
         
         return itemDate >= startDate && itemDate <= endDate;
       });
+      console.log("After date filtering:", filteredData.length);
     }
     
     if (financerFilter) {
       filteredData = filteredData.filter(item => item.Financer === financerFilter);
+      console.log("After financer filtering:", filteredData.length);
     }
     
     if (cityFilter) {
       filteredData = filteredData.filter(item => item.City === cityFilter);
+      console.log("After city filtering:", filteredData.length);
     }
 
     // Group data by date
@@ -55,6 +61,12 @@ export default function FinancingTrendChart({
     const sortedData = Object.values(groupedByDate)
       .sort((a: any, b: any) => String(a.date).localeCompare(String(b.date)));
 
+    console.log(`Generated chart data: ${sortedData.length} data points`);
+    if (sortedData.length > 0) {
+      console.log("First point:", sortedData[0]);
+      console.log("Last point:", sortedData[sortedData.length - 1]);
+    }
+    
     setChartData(sortedData);
   }, [salesData, dateRangeFilter, financerFilter, cityFilter]);
 

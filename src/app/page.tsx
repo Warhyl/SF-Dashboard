@@ -56,6 +56,8 @@ export default function Dashboard() {
   const getFilteredSalesData = () => {
     let filtered = [...salesData];
     
+    console.log("Original sales data length:", salesData.length);
+    
     if (filters.dateRange && filters.dateRange.start && filters.dateRange.end) {
       filtered = filtered.filter(item => {
         // Ensure we're comparing strings in the same format
@@ -65,28 +67,36 @@ export default function Dashboard() {
         
         return itemDate >= startDate && itemDate <= endDate;
       });
+      console.log("After date filtering:", filtered.length);
     }
     
     if (filters.city) {
       filtered = filtered.filter(item => item.City === filters.city);
+      console.log("After city filtering:", filtered.length);
     }
     
     if (filters.financer) {
       filtered = filtered.filter(item => item.Financer === filters.financer);
+      console.log("After financer filtering:", filtered.length);
     }
     
     if (filters.store) {
       const storeField = filtered.length > 0 && filtered[0]?.Channel_Name ? 'Channel_Name' : 'Store_Name';
       filtered = filtered.filter(item => item[storeField] === filters.store);
+      console.log("After store filtering:", filtered.length);
     }
     
     if (filters.storeCode) {
       filtered = filtered.filter(item => String(item.Channel_Code) === String(filters.storeCode));
+      console.log("After store code filtering:", filtered.length);
     }
     
     if (filters.model) {
       filtered = filtered.filter(item => item.Purchased_Model_Name === filters.model);
+      console.log("After model filtering:", filtered.length);
     }
+    
+    console.log("Final filtered data:", filtered.length);
     
     return filtered;
   };
